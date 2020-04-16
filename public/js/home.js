@@ -17,6 +17,23 @@ $(document).ready(function () {
     */
     $('#number').keyup(function () {
         // your code here
+
+        var number = $('#number').val();
+
+        $.get('/getCheckNumber', {number:number}, function (result) {
+
+            if(result.number == number) {
+                $('#number').css('background-color', 'red');
+                $('#error').text('Number already registered');
+                $('#submit').prop('disabled', true);
+            }
+            else {
+                $('#number').css('background-color', '#E3E3E3');
+                $('#error').text('');
+                $('#submit').prop('disabled', false);
+            }
+        });
+
     });
 
     /*
@@ -32,6 +49,28 @@ $(document).ready(function () {
     */
     $('#submit').click(function () {
         // your code here
+        
+        var name = $('#name').val();
+        var number = $('#number').val();
+        
+        if(name != null && number != null){
+            $.get('/add', {name: name, number: number}, function(result){
+                $('#contacts').append(
+                    "<div class='contact'>" +
+                    "    <img src='/images/icon.webp' class='icon'>" +
+                    "    <div class='info'>" +
+                    "        <p class='text'>" + name + "</p>" +
+                    "        <p class='text'>" + number + "</p>" +
+                    "    </div>" +
+                    "    <button class='remove'> X </button>" +
+                    "</div>"
+                );
+            });
+
+            $('#name').val('');
+            $('#number').val('');
+        }
+
     });
 
     /*
@@ -43,6 +82,18 @@ $(document).ready(function () {
     */
     $('#contacts').on('click', '.remove', function () {
         // your code here
+
+        var name = $(this).siblings('.info').children('.text').first().text();
+        var number = $(this).siblings('.info').children('.text').last().text();
+
+        //placed here to remove the spaces in card.hbs :(
+        name = name.replace(/\s+/g, '');
+        number = number.replace(/\s+/g, '');
+
+        $.get('/delete', {name: name, number: number});
+
+        $(this).closest('.contact').remove();
+
     });
 
 })
